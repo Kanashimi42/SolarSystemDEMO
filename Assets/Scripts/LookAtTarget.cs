@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class LookAtTarget : MonoBehaviour {
+public class LookAtTarget : MonoBehaviour
+{
 
     [Tooltip("This is the object that the script's game object will look at by default")]
     public GameObject defaultTarget; // the default target that the camera should look at
@@ -10,12 +11,13 @@ public class LookAtTarget : MonoBehaviour {
     public GameObject currentTarget; // the target that the camera should look at
 
     // Start happens once at the beginning of playing. This is a great place to setup the behavior for this gameObject
-	void Start () {
-		if (defaultTarget == null) 
-		{
+    void Start()
+    {
+        if (defaultTarget == null)
+        {
             defaultTarget = this.gameObject;
-			Debug.Log ("defaultTarget target not specified. Defaulting to parent GameObject");
-		}
+            Debug.Log("defaultTarget target not specified. Defaulting to parent GameObject");
+        }
 
         if (currentTarget == null)
         {
@@ -23,8 +25,8 @@ public class LookAtTarget : MonoBehaviour {
             Debug.Log("currentTarget target not specified. Defaulting to parent GameObject");
         }
     }
-	
-	// Update is called once per frame
+
+    // Update is called once per frame
     // For clarity, Update happens constantly as your game is running
     void Update()
     {
@@ -39,28 +41,40 @@ public class LookAtTarget : MonoBehaviour {
             hits = Physics.RaycastAll(ray);
 
             // if there are hits
-            if (hits.Length>0)
+            if (hits.Length > 0)
             {
                 // get the first object hit
                 RaycastHit hit = hits[0];
                 currentTarget = hit.collider.gameObject;
 
-                Debug.Log("defaultTarget changed to "+currentTarget.name);
+                Debug.Log("defaultTarget changed to " + currentTarget.name);
             }
-        } else if (Input.GetMouseButtonDown(1)) // if the second mouse button is pressed
+        }
+        else if (Input.GetMouseButtonDown(1)) // if the second mouse button is pressed
         {
             currentTarget = defaultTarget;
             Debug.Log("defaultTarget changed to " + currentTarget.name);
         }
 
-       // if a currentTarget is set, then look at it
-        if (currentTarget!=null)
+        // making zoom through fov
+        // mouse scroll delta y means vertical movement of mouse wheel, > 0 forward, < 0 backwards/to yourself
+        float scroll = Input.mouseScrollDelta.y;
+
+        if (scroll != 0)
+        {
+            Camera.main.fieldOfView -= scroll * 5f; //scroll parameter * speed of camera zoom
+            Camera.main.fieldOfView = Mathf.Clamp(Camera.main.fieldOfView, 0.5f, 80f); // Mathf.Clamp keeps field of view between two parameters
+        }
+
+        // if a currentTarget is set, then look at it
+        if (currentTarget != null)
         {
             // transform here refers to the attached gameobject this script is on.
             // the LookAt function makes a transform point it's Z axis towards another point in space
             // In this case it is pointing towards the target.transform
             transform.LookAt(currentTarget.transform);
-        } else // reset the look at back to the default
+        }
+        else // reset the look at back to the default
         {
             currentTarget = defaultTarget;
             Debug.Log("defaultTarget changed to " + currentTarget.name);
